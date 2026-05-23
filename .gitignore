@@ -1,0 +1,14 @@
+# Generated test files
+*.pcap
+*.pcapng
+*.bin
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*~
