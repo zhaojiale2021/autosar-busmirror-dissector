@@ -105,6 +105,16 @@ Open the `.pcap` file in Wireshark, right-click any packet → **Decode As** →
 | Ethernet (4) | 4 bytes | 2 bytes (uint16) | Controller/Port ID + VLAN ID |
 | Custom (16–31) | 4 bytes (default) | 1 byte | Raw display |
 
+## Known Limitations
+
+- Only the **serialization protocol** (`MirroringProtocolEnum=version1`) is supported — i.e. FlexRay / Ethernet / CDD destinations. The CAN 2.0 destination ID-mapping mode (`MirroringProtocolEnum=none`) is not supported.
+- The Ethernet FrameID layout (4 bytes: Controller/Port ID + VLAN ID) is a best-effort interpretation based on AUTOSAR conventions. Exact layouts may vary between implementations.
+- No fragmentation/reassembly of mirrored source frames.
+
+## Documentation
+
+- [中文版 (Chinese)](README_zh.md)
+
 ## Specification Reference
 
 - **AUTOSAR CP SWS BusMirroring** — [R23-11](https://www.autosar.org/fileadmin/standards/R23-11/CP/AUTOSAR_CP_SWS_BusMirroring.pdf) / [R24-11](https://www.autosar.org/fileadmin/standards/R24-11/CP/AUTOSAR_CP_SWS_BusMirroring.pdf)
