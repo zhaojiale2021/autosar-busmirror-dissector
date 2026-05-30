@@ -101,8 +101,8 @@ Open the `.pcap` file in Wireshark, right-click any packet → **Decode As** →
 |------|-------------|-----------------|--------|
 | CAN (1) | 4 bytes | 1 byte (uint8) | Full support — IDE, FDF, 11/29-bit ID, NetworkState |
 | LIN (2) | 1 byte | 1 byte (uint8) | Full support — PID, parity, unconditional ID, NetworkState |
-| FlexRay (3) | 3 bytes | 2 bytes (uint16) | Full support — Channel A/B, Slot ID, Cycle, NetworkState |
-| Ethernet (4) | 4 bytes | 2 bytes (uint16) | Controller/Port ID + VLAN ID |
+| FlexRay (3) | 3 bytes | 1 byte (uint8) | Full support — Channel A/B, Slot ID, Cycle, NetworkState |
+| Ethernet (4) | 4 bytes | 1 byte (uint8) | Controller/Port ID + VLAN ID |
 | Custom (16–31) | 4 bytes (default) | 1 byte | Raw display |
 
 ## Known Limitations

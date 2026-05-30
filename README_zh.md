@@ -110,8 +110,8 @@ Bit 4-0: NetworkType            (0=Invalid, 1=CAN, 2=LIN, 3=FlexRay, 4=Ethernet,
 |------|-------------|-----------------|---------|
 | CAN (1) | 4 字节 | 1 字节 (uint8) | 完整 — IDE、FDF、11/29位ID、NetworkState |
 | LIN (2) | 1 字节 | 1 字节 (uint8) | 完整 — PID、校验位、无条件ID、NetworkState |
-| FlexRay (3) | 3 字节 | 2 字节 (uint16) | 完整 — Channel A/B、Slot ID、Cycle、NetworkState |
-| Ethernet (4) | 4 字节 | 2 字节 (uint16) | Controller/Port ID + VLAN ID（12位） |
+| FlexRay (3) | 3 字节 | 1 字节 (uint8) | 完整 — Channel A/B、Slot ID、Cycle、NetworkState |
+| Ethernet (4) | 4 字节 | 1 字节 (uint8) | Controller/Port ID + VLAN ID（12位） |
 | 自定义 (16–31) | 4 字节（默认） | 1 字节 | 原始数据显示 |
 
 ### CAN FrameID 结构（4字节）

@@ -51,13 +51,8 @@ FRAME_ID_SIZES = {
     4: 4,   # Ethernet
 }
 
-# PayloadLength field sizes per network type
-PAYLOAD_LEN_SIZES = {
-    1: 1,   # CAN (uint8)
-    2: 1,   # LIN (uint8)
-    3: 2,   # FlexRay (uint16)
-    4: 2,   # Ethernet (uint16)
-}
+# PayloadLength field size per network type (per [SWS_Mirror_00110]: always 8 bits)
+PAYLOAD_LEN_SIZE = 1  # uint8 for all network types
 
 
 # =============================================================================
@@ -286,10 +281,7 @@ class DataItem:
         # Optional: PayloadLength + Payload
         if has_payload:
             plen = len(self.payload)
-            if self.net_type in (NET_TYPE["CAN"], NET_TYPE["LIN"]):
-                buf += struct.pack(">B", plen)    # uint8
-            else:
-                buf += struct.pack(">H", plen)    # uint16 BE
+            buf += struct.pack(">B", plen)    # uint8 per [SWS_Mirror_00110]
             buf += self.payload
 
         return buf

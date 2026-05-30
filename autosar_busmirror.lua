@@ -28,7 +28,7 @@
 --     NetworkID         uint8   (1 byte)
 --     [NetworkState]    uint8   (optional, bus-specific state flags)
 --     [FrameID]         var     (optional, CAN=4, LIN=1, FlexRay=3, Ethernet=4 bytes)
---     [PayloadLength]   var     (optional, CAN/LIN=1, FlexRay/Ethernet=2 bytes)
+--     [PayloadLength]   uint8   (optional, 1 byte for all network types per [SWS_Mirror_00110])
 --     [Payload]         bytes   (optional, PayloadLength bytes)
 --
 -- FrameIDCAN (4 bytes):
@@ -163,8 +163,8 @@ local f_eth_vlan_id = ProtoField.uint16("busmirror.fid.eth.vlan_id", "VLAN ID (1
 -- Payload fields
 local f_can_payload_len = ProtoField.uint8 ("busmirror.payload.can.len", "Payload Length", base.DEC)
 local f_lin_payload_len = ProtoField.uint8 ("busmirror.payload.lin.len", "Payload Length", base.DEC)
-local f_fr_payload_len  = ProtoField.uint16("busmirror.payload.fr.len",  "Payload Length", base.DEC)
-local f_eth_payload_len = ProtoField.uint16("busmirror.payload.eth.len", "Payload Length", base.DEC)
+local f_fr_payload_len  = ProtoField.uint8("busmirror.payload.fr.len",  "Payload Length", base.DEC)
+local f_eth_payload_len = ProtoField.uint8("busmirror.payload.eth.len", "Payload Length", base.DEC)
 local f_payload_data    = ProtoField.bytes ("busmirror.payload.data",    "Payload Data",   base.NONE)
 
 -- Aggregate/raw fields
@@ -240,8 +240,11 @@ local function format_timestamp(sec_bytes, nanos)
 	local ns_str = tostring(nanos)
 	if #ns_str > 9 then ns_str = ns_str:sub(1, 9)
 	elseif #ns_str < 9 then ns_str = string.rep("0", 9 - #ns_str) .. ns_str end
-	local ds = os.date("!%Y-%m-%d %H:%M:%S", secs)
-	if ds then
+	-- os.date may throw on some platforms (e.g. Windows) for timestamps beyond
+	-- the platform time_t range (year 2038 on 32-bit, or distant-future 48-bit values).
+	-- Use pcall to catch the error and fall back to epoch display.
+	local success, ds = pcall(os.date, "!%Y-%m-%d %H:%M:%S", secs)
+	if success and ds then
 		return ds .. "." .. ns_str
 	else
 		return string.format("%.0f", secs) .. "." .. ns_str .. " (epoch)"
@@ -377,7 +380,7 @@ local function dissect_frame_id(tvb, offset, net_type, tree, pinfo)
 		else
 			-- Standard 11-bit ID: only lower 11 bits are used
 			local can_id_11bit = bit.band(can_id_29bit, 0x7FF)
-			fid_tree:add(f_can_id, tvb(offset + 2, 2))
+			fid_tree:add(f_can_id, tvb(offset, 4))
 				:set_text(string.format("CAN ID: 0x%03X (Standard 11-bit)", can_id_11bit))
 			pinfo.cols.info:append(string.format("[CAN Std 0x%03X] ", can_id_11bit))
 		end
@@ -457,29 +460,26 @@ end
 -- Dissect Payload based on network type.
 -- Returns the new offset after the payload.
 local function dissect_payload(tvb, offset, net_type, tree, pinfo)
+	-- Per [SWS_Mirror_00110]: PayloadLength width is 8 bits (1 byte) for all network types.
 	local payload_len
 
 	if net_type == 1 then -- CAN: 1-byte length
 		payload_len = tvb(offset, 1):uint()
 		tree:add(f_can_payload_len, tvb(offset, 1))
-		offset = offset + 1
 	elseif net_type == 2 then -- LIN: 1-byte length
 		payload_len = tvb(offset, 1):uint()
 		tree:add(f_lin_payload_len, tvb(offset, 1))
-		offset = offset + 1
-	elseif net_type == 3 then -- FlexRay: 2-byte length (MSB first)
-		payload_len = read_uint16_be(tvb, offset)
-		tree:add(f_fr_payload_len, tvb(offset, 2))
-		offset = offset + 2
-	elseif net_type == 4 then -- Ethernet: 2-byte length (MSB first)
-		payload_len = read_uint16_be(tvb, offset)
-		tree:add(f_eth_payload_len, tvb(offset, 2))
-		offset = offset + 2
+	elseif net_type == 3 then -- FlexRay: 1-byte length (spec: 8 bits)
+		payload_len = tvb(offset, 1):uint()
+		tree:add(f_fr_payload_len, tvb(offset, 1))
+	elseif net_type == 4 then -- Ethernet: 1-byte length (spec: 8 bits)
+		payload_len = tvb(offset, 1):uint()
+		tree:add(f_eth_payload_len, tvb(offset, 1))
 	else
 		-- Unknown type: use 1-byte length
 		payload_len = tvb(offset, 1):uint()
-		offset = offset + 1
 	end
+	offset = offset + 1
 
 	if payload_len > 0 then
 		tree:add(f_payload_data, tvb(offset, payload_len))
