@@ -17,6 +17,8 @@ This project provides:
 
 ## Quick Start
 
+For a capture-first validation workflow, see [Capture and Dissector Validation](docs/capture-validation.md).
+
 ### Wireshark Dissector
 
 Copy the Lua script to Wireshark's plugin directory:

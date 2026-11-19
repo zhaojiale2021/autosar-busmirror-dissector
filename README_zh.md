@@ -17,6 +17,8 @@
 
 ## 快速开始
 
+抓包优先的验证流程见 [抓包与解析器验证](docs/capture-validation.md)。
+
 ### Wireshark 解析器
 
 将 Lua 脚本复制到 Wireshark 插件目录：
