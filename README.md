@@ -1,5 +1,7 @@
 # AUTOSAR BusMirror — Wireshark Dissector & Test Generator
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Wireshark Lua dissector and Python test-packet generator for the AUTOSAR BusMirror serialization protocol (CP SWS BusMirroring R23-11 / R24-11).
 
 ## Overview

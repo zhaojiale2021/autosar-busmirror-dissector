@@ -1,5 +1,7 @@
 # AUTOSAR BusMirror — Wireshark 解析器 & 测试数据生成器
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 基于 AUTOSAR CP SWS BusMirroring (R23-11 / R24-11) 规范的 BusMirror 串行化协议解析工具。
 
 ## 项目简介
